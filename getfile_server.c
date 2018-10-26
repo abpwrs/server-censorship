@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
+        // read in file name
         nread = read(client_sockfd, buf, SIZE);
         printf("file requested: %s\n", buf);
         char * requested_file = buf;
@@ -65,12 +66,14 @@ int main(int argc, char *argv[])
         printf("%s\n", command);
         int status = system(command);
         free(command);
-
+        // return status of file download
+        printf(buf, "%d\n", status);
+        len = strlen(buf) + 1;
+        write(client_sockfd, base, len);
 
         /* transfer data */
         //time(&t);
         sprintf(buf, "%s -- %d\n", "This should be a file contents", ++num_connections);
-
         len = strlen(buf) + 1;
         write(client_sockfd, buf, len);
         close(client_sockfd);

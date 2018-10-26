@@ -46,9 +46,15 @@ int main(int argc, char *argv[])
         exit(3);
     }
     /* transfer data */
+
+    // Send File Name
     sprintf(buf, "%s", argv[1]);
     len = strlen(buf) + 1;
     write(sockfd, buf, len);
+
+    // recieve status
+    nread = read(sockfd, buf, SIZE);
+    write(1, buf, nread); 
 
 
     nread = read(sockfd, buf, SIZE);
