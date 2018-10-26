@@ -10,7 +10,6 @@
 #define SIZE 1024
 char buf[SIZE];
 #define TIME_PORT 16200 // server listens on this port
-#define BASE_URL "http://user.engineering.uiowa.edu/~jwryan/Communication_Networks/" // assume 
 // args:
 // method -- 0
 // filename -- 1
@@ -38,7 +37,9 @@ int main(int argc, char *argv[])
     serv_addr.sin_family = AF_INET;
     h = gethostbyname(argv[2]);
     bcopy(h->h_addr, (char *)&serv_addr.sin_addr, h->h_length);
-    serv_addr.sin_port = htons(TIME_PORT);
+    int port = atoi(argv[3]);
+    printf("Connecting to port: %d\n", port);
+    serv_addr.sin_port = htons(port);
     int len = sizeof(serv_addr);
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
@@ -54,8 +55,7 @@ int main(int argc, char *argv[])
 
     // recieve status
     nread = read(sockfd, buf, SIZE);
-    write(1, buf, nread); 
-
+    write(1, buf, nread);
 
     nread = read(sockfd, buf, SIZE);
     write(1, buf, nread); // Writes to standard output

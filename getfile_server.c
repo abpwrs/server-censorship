@@ -10,8 +10,8 @@
 #include <time.h>
 #define SIZE 1024
 char buf[SIZE];
-#define TIME_PORT 16200 //server will listen on this port
-char *base = "http://user.engineering.uiowa.edu/~jwryan/Communication_Networks/"; // base path to files
+#define TIME_PORT 16200                                                              //server will listen on this port
+#define BASE_URL "http://user.engineering.uiowa.edu/~jwryan/Communication_Networks/" // base path to files
 // args
 // method -- 0
 // word_to_replace -- 1
@@ -38,7 +38,12 @@ int main(int argc, char *argv[])
     /* bind address */
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(TIME_PORT);
+
+    // Get the port from CLI
+    int port = atoi(argv[2]);
+    printf("Listening on port: %d\n", port);
+    serv_addr.sin_port = htons(port);
+    
     if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         perror(NULL);
@@ -49,27 +54,29 @@ int main(int argc, char *argv[])
     listen(sockfd, 5);
     for (;;)
     {
+        printf("Waiting for connection...\n");
         client_sockfd = accept(sockfd, (struct sockaddr *)&client_addr, &len);
         if (client_sockfd == -1)
         {
             perror(NULL);
             continue;
         }
+        printf("Connected to client at 127.0.0.1:%d",TIME_PORT);
 
         // read in file name
         nread = read(client_sockfd, buf, SIZE);
         printf("file requested: %s\n", buf);
-        char * requested_file = buf;
+        char *requested_file = buf;
 
         char *command = (char *)malloc(sizeof(char) * SIZE);
-        sprintf(command, "%s %s%s %s %s", "curl", base, requested_file, "-o", requested_file);
+        sprintf(command, "%s %s%s %s %s", "curl", BASE_URL, requested_file, "-o", requested_file);
         printf("%s\n", command);
         int status = system(command);
         free(command);
         // return status of file download
         printf(buf, "%d\n", status);
         len = strlen(buf) + 1;
-        write(client_sockfd, base, len);
+        write(client_sockfd, buf, len);
 
         /* transfer data */
         //time(&t);
@@ -77,6 +84,5 @@ int main(int argc, char *argv[])
         len = strlen(buf) + 1;
         write(client_sockfd, buf, len);
         close(client_sockfd);
-
     }
 }
