@@ -15,9 +15,10 @@ char buf[SIZE];
 // method -- 0
 // word_to_replace -- 1
 // server_port -- 2
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
     int sockfd, client_sockfd;
+    char *word_to_replace = argv[1];
     int nread, len;
     struct sockaddr_in serv_addr, client_addr;
     time_t t;
@@ -28,12 +29,14 @@ int main(int argc, char *argv[])
         printf("Usage: %s word_to_replace server_port\n", argv[0]);
         exit(2);
     }
+
     /* create endpoint */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         perror(NULL);
         exit(2);
     }
+
     /* bind address */
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -48,6 +51,7 @@ int main(int argc, char *argv[])
         perror(NULL);
         exit(3);
     }
+
     /* specify queue */
     len = sizeof(client_addr);
     listen(sockfd, 5);
@@ -60,38 +64,62 @@ int main(int argc, char *argv[])
             perror(NULL);
             continue;
         }
-        printf("Connected to client at 127.0.0.1:%d", port);
+        printf("Connected to client at 127.0.0.1:%d\n", port);
 
-        // read in file name
+        // read in file name and curl the file if possible
         nread = read(client_sockfd, buf, SIZE);
         printf("Downloading: %s...\n", buf);
-        char *requested_file = buf;
+        char *requested_file = (char *)malloc(sizeof(char) * SIZE);
+        sprintf(requested_file, "%s", buf);
         char *command = (char *)malloc(sizeof(char) * SIZE);
-        char * flags = "--fail";
-        sprintf(command, "%s %s%s %s %s %s", "curl", BASE_URL, requested_file, "-o", requested_file, flags);
-        printf("%s\n", command);
+        sprintf(command, "%s %s%s %s", "curl", BASE_URL, requested_file, "-o download.txt --fail");
         int status = system(command);
+        free(requested_file);
         free(command);
-        printf("Curl status: %d", status);
-        
+
         // write status back to user
         sprintf(buf, "%d", status);
         len = strlen(buf) + 1;
         write(client_sockfd, buf, len);
 
-        if (status != 0 ){
+        // if the request failed
+        if (status != 0)
+        {
             // failure to download file
             printf("Bad request\nClosing connection\n");
             close(client_sockfd);
             continue;
-        } else {
-            // success in downloading -- censor and transmit file
         }
-        /* transfer data */
-        //time(&t);
-        sprintf(buf, "%s -- %d\n", "This should be a file contents", ++num_connections);
-        len = strlen(buf) + 1;
-        write(client_sockfd, buf, len);
+        else
+        {
+            // success in downloading -- censor and transmit filFILE *f = fopen("textfile.txt", "rb");
+            printf("censoring file\n");
+            FILE *f = fopen("download.txt", "r");
+            fseek(f, 0, SEEK_END);
+            long fsize = ftell(f);
+            fseek(f, 0, SEEK_SET); //same as rewind(f);
+
+            char *string = malloc(fsize + 1);
+            fread(string, fsize, 1, f);
+            char *found = strstr(string, word_to_replace);
+            fclose(f);
+            int num_replaced = 0;
+            while (found)
+            {
+                for (int offset = 0; offset < strlen(word_to_replace); ++offset)
+                {
+                    *(found + offset) = '*';
+                }
+                ++num_replaced;
+                found = strstr(string, word_to_replace);
+            }
+            printf("Replacement count: %d\n", num_replaced);
+            // string has been censored and is ready to transmit
+            
+            free(string);
+        }
+
+        printf("Closing connection\n");
         close(client_sockfd);
     }
 }
