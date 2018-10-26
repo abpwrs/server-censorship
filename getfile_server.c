@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
         char *requested_file = (char *)malloc(sizeof(char) * SIZE);
         sprintf(requested_file, "%s", buf);
         char *command = (char *)malloc(sizeof(char) * SIZE);
-        sprintf(command, "%s %s%s %s", "curl", BASE_URL, requested_file, "-o download.txt --fail");
+        sprintf(command, "%s %s%s %s", "curl", BASE_URL, requested_file, "-s -o download.txt --fail");
         int status = system(command);
         free(requested_file);
         free(command);
@@ -92,9 +92,10 @@ int main(int argc, char *argv[])
         }
         else
         {
-            // success in downloading -- censor and transmit filFILE *f = fopen("textfile.txt", "rb");
-            printf("censoring file\n");
+            // success in downloading -- censor and transmit
+            printf("Download success\n");
             FILE *f = fopen("download.txt", "r");
+            // This code to find the file size came from stackoverflow
             fseek(f, 0, SEEK_END);
             long fsize = ftell(f);
             fseek(f, 0, SEEK_SET); //same as rewind(f);
@@ -114,11 +115,19 @@ int main(int argc, char *argv[])
                 found = strstr(string, word_to_replace);
             }
             printf("Replacement count: %d\n", num_replaced);
-            // string has been censored and is ready to transmit
-            
+
+            // string has been censored and is ready to transmion
+            for (int i = 0; i < fsize; i += SIZE)
+            {
+                char sub[SIZE]; 
+                for(int j = 0; j < SIZE; ++j){
+                    sub[j] = string[i+j];
+                }
+                write(client_sockfd, sub, SIZE);
+            }
+            write(client_sockfd, "", 0);
             free(string);
         }
-
         printf("Closing connection\n");
         close(client_sockfd);
     }

@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
     // Get the port from CLI
     int port = atoi(argv[3]);
-    printf("Connecting to port: %d\n", port);
+    printf("Connecting to port 127.0.0.1:%d\n", port);
     serv_addr.sin_port = htons(port);
 
     int len = sizeof(serv_addr);
@@ -51,22 +51,30 @@ int main(int argc, char *argv[])
     /* transfer data */
 
     // Send File Name
+    printf("Requested: %s\n", argv[1]);
     sprintf(buf, "%s", argv[1]);
     len = strlen(buf) + 1;
     write(sockfd, buf, len);
 
     // recieve status
     nread = read(sockfd, buf, SIZE);
-    printf("Curl Status: %d\n", atoi(buf));
     if (atoi(buf) != 0)
     {
         // failed to download file, close connection and exit code 0
-        printf("Bad request\nClosing csonnection\n");
+        printf("Bad request\nClosing connection\n");
         close(sockfd);
         exit(0);
     }
     // read in the censored file
-    printf("reading 1");
+    printf("Recieving file...\n");
+    FILE *f = fopen(argv[1], "w");
+    do
+    {
+        nread = read(sockfd, buf, SIZE);
+        fputs(buf,f);
+    } while (nread != 0 );
+    fclose(f);
+    printf("Transfer Complete\n");
     close(sockfd);
     exit(0);
 }
