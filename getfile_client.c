@@ -9,7 +9,6 @@
 #include <strings.h>
 #define SIZE 1024
 char buf[SIZE];
-#define TIME_PORT 16200 // server listens on this port
 // args:
 // method -- 0
 // filename -- 1

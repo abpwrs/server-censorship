@@ -1,4 +1,4 @@
-// simple server to request and redact file d
+/* simple server to request and redact a requested file on behalf of a client */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -10,7 +10,6 @@
 #include <time.h>
 #define SIZE 1024
 char buf[SIZE];
-#define TIME_PORT 16200                                                              //server will listen on this port
 #define BASE_URL "http://user.engineering.uiowa.edu/~jwryan/Communication_Networks/" // base path to files
 // args
 // method -- 0
