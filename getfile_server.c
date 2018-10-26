@@ -16,7 +16,7 @@ char buf[SIZE];
 // method -- 0
 // word_to_replace -- 1
 // server_port -- 2
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) 
 {
     int sockfd, client_sockfd;
     int nread, len;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     int port = atoi(argv[2]);
     printf("Listening on port: %d\n", port);
     serv_addr.sin_port = htons(port);
-    
+
     if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         perror(NULL);

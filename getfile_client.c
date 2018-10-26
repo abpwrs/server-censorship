@@ -37,9 +37,12 @@ int main(int argc, char *argv[])
     serv_addr.sin_family = AF_INET;
     h = gethostbyname(argv[2]);
     bcopy(h->h_addr, (char *)&serv_addr.sin_addr, h->h_length);
+
+    // Get the port from CLI
     int port = atoi(argv[3]);
     printf("Connecting to port: %d\n", port);
     serv_addr.sin_port = htons(port);
+
     int len = sizeof(serv_addr);
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
@@ -56,6 +59,8 @@ int main(int argc, char *argv[])
     // recieve status
     nread = read(sockfd, buf, SIZE);
     write(1, buf, nread);
+
+    // recieve the file
 
     nread = read(sockfd, buf, SIZE);
     write(1, buf, nread); // Writes to standard output
