@@ -11,12 +11,22 @@
 #define SIZE 1024
 char buf[SIZE];
 #define TIME_PORT 16200 //server will listen on this port
+// args
+// method -- 0
+// word_to_replace -- 1
+// server_port -- 2
 int main(int argc, char *argv[])
 {
     int sockfd, client_sockfd;
     int nread, len;
     struct sockaddr_in serv_addr, client_addr;
     time_t t;
+    if (argc != 3)
+    { // run input validation and prompt for the correct num of args
+        printf("Incorrect usage of %s\n", argv[0]);
+        printf("Usage: %s word_to_replace server_port\n", argv[0]);
+        exit(2);
+    }
     /* create endpoint */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
