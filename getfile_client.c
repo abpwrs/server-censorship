@@ -58,7 +58,14 @@ int main(int argc, char *argv[])
 
     // recieve status
     nread = read(sockfd, buf, SIZE);
-    write(1, buf, nread);
+    printf("Curl Status: %d", atoi(buf));
+    if (atoi(buf) != 0 ) {
+        // failed to download file, close connection and exit code 0
+        printf("Bad request\nClosing csonnection\n");
+        close(sockfd);
+        exit(0);
+    }
+
 
     // recieve the file
 

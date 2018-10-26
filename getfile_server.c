@@ -61,23 +61,33 @@ int main(int argc, char *argv[])
             perror(NULL);
             continue;
         }
-        printf("Connected to client at 127.0.0.1:%d",TIME_PORT);
+        printf("Connected to client at 127.0.0.1:%d", port);
 
         // read in file name
         nread = read(client_sockfd, buf, SIZE);
-        printf("file requested: %s\n", buf);
+        printf("Downloading: %s...\n", buf);
         char *requested_file = buf;
-
         char *command = (char *)malloc(sizeof(char) * SIZE);
-        sprintf(command, "%s %s%s %s %s", "curl", BASE_URL, requested_file, "-o", requested_file);
+        char * flags = "--fail";
+        sprintf(command, "%s %s%s %s %s %s", "curl", BASE_URL, requested_file, "-o", requested_file, flags);
         printf("%s\n", command);
         int status = system(command);
         free(command);
-        // return status of file download
-        printf(buf, "%d\n", status);
+        printf("Curl status: %d", status);
+        
+        // write status back to user
+        sprintf(buf, "%d", status);
         len = strlen(buf) + 1;
         write(client_sockfd, buf, len);
 
+        if (status != 0 ){
+            // failure to download file
+            printf("Bad request\nClosing connection\n");
+            close(client_sockfd);
+            continue;
+        } else {
+            // success in downloading -- censor and transmit file
+        }
         /* transfer data */
         //time(&t);
         sprintf(buf, "%s -- %d\n", "This should be a file contents", ++num_connections);
