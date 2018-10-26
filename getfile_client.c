@@ -1,4 +1,4 @@
-/* TCP client that finds the time from a server */
+/* TCP client that requests a file and recieves a redacted file*/
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -9,7 +9,8 @@
 #include <strings.h>
 #define SIZE 1024
 char buf[SIZE];
-#define TIME_PORT 16200 //server listens on this port
+#define TIME_PORT 16200 // server listens on this port
+#define BASE_URL "http://user.engineering.uiowa.edu/~jwryan/Communication_Networks/" // assume 
 // args:
 // method -- 0
 // filename -- 1
@@ -38,12 +39,18 @@ int main(int argc, char *argv[])
     h = gethostbyname(argv[2]);
     bcopy(h->h_addr, (char *)&serv_addr.sin_addr, h->h_length);
     serv_addr.sin_port = htons(TIME_PORT);
+    int len = sizeof(serv_addr);
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         perror(NULL);
         exit(3);
     }
     /* transfer data */
+    sprintf(buf, "%s\n", argv[1]);
+    len = strlen(buf) + 1;
+    write(sockfd, buf, len);
+
+
     nread = read(sockfd, buf, SIZE);
     write(1, buf, nread); // Writes to standard output
     close(sockfd);

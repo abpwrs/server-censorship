@@ -1,4 +1,4 @@
-//This simple server is not multithreaded
+// simple server to request and redact file d
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
     int nread, len;
     struct sockaddr_in serv_addr, client_addr;
     time_t t;
+    int num_connections = 0;
     if (argc != 3)
     { // run input validation and prompt for the correct num of args
         printf("Incorrect usage of %s\n", argv[0]);
@@ -54,11 +55,15 @@ int main(int argc, char *argv[])
             continue;
         }
 
+        nread = read(client_sockfd, buf, SIZE);
+        printf("file requested: %s\n", buf);
         /* transfer data */
-        time(&t);
-        sprintf(buf, "%s", asctime(localtime(&t)));
+        //time(&t);
+        sprintf(buf, "%s -- %d\n", "This should be a file contents", ++num_connections);
+
         len = strlen(buf) + 1;
         write(client_sockfd, buf, len);
         close(client_sockfd);
+
     }
 }
