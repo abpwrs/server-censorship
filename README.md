@@ -1,0 +1,2 @@
+# ECE3540-Proxy-Censorship
+A client and proxy server, where the proxy censors one word from the entire requested file
