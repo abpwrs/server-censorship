@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         exit(3);
     }
     /* transfer data */
-    sprintf(buf, "%s\n", argv[1]);
+    sprintf(buf, "%s", argv[1]);
     len = strlen(buf) + 1;
     write(sockfd, buf, len);
 

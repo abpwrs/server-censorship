@@ -11,6 +11,7 @@
 #define SIZE 1024
 char buf[SIZE];
 #define TIME_PORT 16200 //server will listen on this port
+char *base = "http://user.engineering.uiowa.edu/~jwryan/Communication_Networks/"; // base path to files
 // args
 // method -- 0
 // word_to_replace -- 1
@@ -57,6 +58,15 @@ int main(int argc, char *argv[])
 
         nread = read(client_sockfd, buf, SIZE);
         printf("file requested: %s\n", buf);
+        char * requested_file = buf;
+
+        char *command = (char *)malloc(sizeof(char) * SIZE);
+        sprintf(command, "%s %s%s %s %s", "curl", base, requested_file, "-o", requested_file);
+        printf("%s\n", command);
+        int status = system(command);
+        free(command);
+
+
         /* transfer data */
         //time(&t);
         sprintf(buf, "%s -- %d\n", "This should be a file contents", ++num_connections);
