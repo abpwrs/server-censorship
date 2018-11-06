@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
             }
             printf("Replacement count: %d\n", num_replaced);
 
-            // string has been censored and is ready to transmion
+            // string has been censored and is ready to transmission
             for (int i = 0; i < fsize; i += SIZE)
             {
                 char sub[SIZE]; 
